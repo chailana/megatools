@@ -1,5 +1,4 @@
-Note :- This is not the original megatools repository. All the files have been added from https://megous.com/git/megatools for some easeful usage purposes! All the credit goes to https://megatools.megous.com for this amazing work!
-
+<b>Note</b> :- This is not the original megatools repository. All the files have been added from https://megous.com/git/megatools for some easeful usage purposes! All the credit goes to https://megatools.megous.com for this amazing work!
 
 megatools - command line client application for Mega
 ====================================================
