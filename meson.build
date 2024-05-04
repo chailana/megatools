@@ -1,5 +1,5 @@
 project('megatools', 'c',
-  version: '1.11.0',
+  version: '1.11.1',
   default_options: [
     'c_std=gnu99',
   ],
@@ -11,7 +11,7 @@ add_global_arguments('-Wno-unused', '-Wno-pointer-sign', language: 'c')
 
 deps = [
   dependency('threads'),
-  dependency('gio-2.0', version: '>=2.32.0'),
+  dependency('gio-2.0', version: '>=2.40.0'),
   dependency('libcurl'),
   dependency('openssl'),
 ]

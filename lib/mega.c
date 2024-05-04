@@ -851,7 +851,7 @@ static guchar *make_random_key(void)
 	//XXX: error check
 	RAND_bytes(k, sizeof(k));
 
-	return g_memdup(k, 16);
+	return g_memdup2(k, 16);
 }
 
 // }}}
@@ -873,14 +873,14 @@ static guchar *make_password_key(const gchar *password)
 			AES_KEY k;
 			guchar key[16] = { 0 }, pkey_tmp[16];
 
-			strncpy(key, password + i, 16); // this is fine, we don't need a NUL termination here, stfu gcc8!
+			memcpy(key, password + i, MIN(16, len - i));
 			AES_set_encrypt_key(key, 128, &k);
 			AES_encrypt(pkey, pkey_tmp, &k);
 			memcpy(pkey, pkey_tmp, 16);
 		}
 	}
 
-	return g_memdup(pkey, 16);
+	return g_memdup2(pkey, 16);
 }
 
 // }}}
@@ -1621,15 +1621,8 @@ static void build_node_tree(struct mega_session *s)
 	for (i = s->fs_nodes; i; i = i->next) {
 		struct mega_node *n = i->data;
 
-#if GLIB_CHECK_VERSION(2, 40, 0)
 		if (!g_hash_table_insert(handle_map, n->handle, n))
 			g_printerr("WARNING: Dup node handle detected %s\n", n->handle);
-#else
-		if (g_hash_table_lookup(handle_map, n->handle))
-			g_printerr("WARNING: Dup node handle detected %s\n", n->handle);
-		else
-			g_hash_table_insert(handle_map, n->handle, n);
-#endif
 	}
 
 	for (i = s->fs_nodes; i;) {
@@ -1824,7 +1817,7 @@ void add_share_key(struct mega_session *s, const gchar *handle, const guchar *ke
 	g_return_if_fail(handle != NULL);
 	g_return_if_fail(key != NULL);
 
-	g_hash_table_insert(s->share_keys, g_strdup(handle), g_memdup(key, 16));
+	g_hash_table_insert(s->share_keys, g_strdup(handle), g_memdup2(key, 16));
 }
 
 // }}}
@@ -2381,7 +2374,7 @@ gboolean mega_session_open(struct mega_session *s, const gchar *un, const gchar 
 				  sizeof(key), key);
 
 		g_free(s->password_key);
-		s->password_key = g_memdup(key, 16);
+		s->password_key = g_memdup2(key, 16);
 
 		uh = base64urlencode(key + 16, 16);
 	} else {
@@ -3073,7 +3066,7 @@ gchar *mega_session_new_node_attribute(struct mega_session *s, const guchar *dat
 
 	// encrypt
 	AES_set_encrypt_key(key, 128, &k);
-	gc_free guchar *plain = g_memdup(data, len);
+	gc_free guchar *plain = g_memdup2(data, len);
 	plain = g_realloc(plain, len + pad);
 	memset(plain + len, 0, pad);
 	gc_free guchar *cipher = g_malloc0(len + pad);

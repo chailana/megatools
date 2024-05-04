@@ -361,8 +361,8 @@ static struct {
 	int type;
 	GRegex* re;
 } link_regexes[] = {
-	{ "^https?://mega(?:\\.co)?\\.nz/#!([a-z0-9_-]{8})!([a-z0-9_-]{43})$", LINK_FILE },
-	{ "^https?://mega\\.nz/file/([a-z0-9_-]{8})#([a-z0-9_-]{43})$", LINK_FILE },
+	{ "^https?://mega(?:\\.co)?\\.nz/#!([a-z0-9_-]{8})!([a-z0-9_=-]{43}={0,2})$", LINK_FILE },
+	{ "^https?://mega\\.nz/file/([a-z0-9_-]{8})#([a-z0-9_-]{43}={0,2})$", LINK_FILE },
 	{ "^https?://mega(?:\\.co)?\\.nz/#F!([a-z0-9_-]{8})!([a-z0-9_-]{22})(?:[!?]([a-z0-9_-]{8}))?$", LINK_FOLDER },
 	{ "^https?://mega\\.nz/folder/([a-z0-9_-]{8})#([a-z0-9_-]{22})/file/([a-z0-9_-]{8})$", LINK_FOLDER },
 	{ "^https?://mega\\.nz/folder/([a-z0-9_-]{8})#([a-z0-9_-]{22})/folder/([a-z0-9_-]{8})$", LINK_FOLDER },
@@ -385,6 +385,8 @@ static gboolean parse_link(const char* url, struct mega_link* l)
 			l->handle = g_match_info_fetch(m, 1);
 			l->key = g_match_info_fetch(m, 2);
 			l->specific = g_match_info_fetch(m, 3);
+			if (l->specific && !l->specific[0])
+				g_clear_pointer(&l->specific, g_free);
 
 			g_clear_pointer(&m, g_match_info_unref);
 			return TRUE;
@@ -446,8 +448,7 @@ static int dl_main(int ac, char *av[])
 
 	// process links
 	for (i = 1; i < ac; i++) {
-		gc_free gchar *link_utf8 = tool_convert_filename(av[i], FALSE);
-		gc_free gchar *link = g_uri_unescape_string(link_utf8, NULL);
+		gc_free gchar *link = g_uri_unescape_string(av[i], NULL);
 		struct mega_link l;
 
 		if (!parse_link(link, &l)) {
