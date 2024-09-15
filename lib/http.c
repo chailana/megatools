@@ -145,7 +145,7 @@ struct http *http_new(void)
 
 	curl_easy_setopt(h->curl, CURLOPT_FOLLOWLOCATION, 1L);
 	curl_easy_setopt(h->curl, CURLOPT_NOSIGNAL, 1L);
-	curl_easy_setopt(h->curl, CURLOPT_PROTOCOLS_STR, "http,https");
+	curl_easy_setopt(h->curl, CURLOPT_PROTOCOLS, "http,https");
 
 	curl_easy_setopt(h->curl, CURLOPT_TCP_KEEPALIVE, 1L);
 	curl_easy_setopt(h->curl, CURLOPT_TCP_KEEPIDLE, 120L);
